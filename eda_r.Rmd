@@ -1,0 +1,63 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+```{r}
+library(tidyverse)
+library(readxl)
+library(lme4)
+```
+
+
+```{r}
+data <- read_excel('StockX-Data-Contest-2019-3.xlsx', sheet = 2)
+
+# Renaming columns
+names(data) <- make.names(names(data), unique = TRUE)
+
+# categoricals
+data$Sneaker.Name <- as.factor(data$Sneaker.Name)
+data$Buyer.Region <- as.factor(data$Buyer.Region)
+
+# new column
+data$Sneaker.General.Type <- ifelse(grepl("Yeezy-Boost-350", data$Sneaker.Name), "Adidas Yeezy", 
+                            ifelse(grepl("Off-White",  data$Sneaker.Name), "Nike Off White","no"))
+
+data$Sneaker.Specific.Type <- ifelse(grepl("Yeezy-Boost-350", data$Sneaker.Name), "Yeezy", 
+                                     ifelse(grepl("Air-Max-90",  data$Sneaker.Name), "Air Max 90",
+                                            ifelse(grepl("VaporMax", data$Sneaker.Name), "VaporMax",
+                                                   ifelse(grepl("Air-Presto", data$Sneaker.Name), "Air Presto",
+                                                          ifelse(grepl("Air-Jordan-1", data$Sneaker.Name), "Air Jordan 1",
+                                                                 ifelse(grepl("Blazer", data$Sneaker.Name), "Blazer",
+                                                                        ifelse(grepl("Air-Force", data$Sneaker.Name),"Air Force 1",
+                                                                               ifelse(grepl("Air-Max-97", data$Sneaker.Name),"Air Max 97",
+                                                                                      ifelse(grepl("Hyperdunk", data$Sneaker.Name),"Hyperdunk 2017",
+                                                                                             ifelse(grepl("Zoom-Fly", data$Sneaker.Name),"Zoom Fly","no"))))))))))
+data$Order.Year.Month <- format(as.Date(data$Order.Date), "%Y-%m")
+
+data
+
+```
+
+```{r}
+ggplot(data, aes(y = Sale.Price, x = Order.Year.Month, color = Sneaker.Specific.Type, group = Sneaker.Specific.Type)) + 
+  geom_line(stat = 'summary', fun = mean) + 
+  ggtitle("Sale Price vs Time") +
+  xlab("Time") + ylab("Sale Price") +
+  theme(axis.text.x = element_text(angle = 90))
+```
+
+```{r}
+ggplot(data, aes(x = Sale.Price, y = Sneaker.Specific.Type)) + 
+  geom_violin() + 
+  geom_point(stat = 'summary', fun = 'mean', color = 'red', alpha = 0.3) +
+  ggtitle("Sale Price")
+
+```
+
+```{r}
+lmer(Sale.Price ~ Sneaker.Name + Release.Date + Shoe.Size + Buyer.Region, data = data)
+```
+
