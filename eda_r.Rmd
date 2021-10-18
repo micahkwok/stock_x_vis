@@ -12,7 +12,7 @@ library(lme4)
 
 
 ```{r}
-data <- read_excel('StockX-Data-Contest-2019-3.xlsx', sheet = 2)
+data <- read_excel('data/StockX-Data-Contest-2019-3.xlsx', sheet = 2)
 
 # Renaming columns
 names(data) <- make.names(names(data), unique = TRUE)
@@ -39,6 +39,8 @@ data$Order.Year.Month <- format(as.Date(data$Order.Date), "%Y-%m")
 
 data
 
+write.csv(data, "data/cleaned_stockX_data.csv", row.names = FALSE)
+
 ```
 
 ```{r}
@@ -58,6 +60,11 @@ ggplot(data, aes(x = Sale.Price, y = Sneaker.Specific.Type)) +
 ```
 
 ```{r}
-lmer(Sale.Price ~ Sneaker.Name + Release.Date + Shoe.Size + Buyer.Region, data = data)
+ggplot(data, aes(y = Shoe.Size)) + geom_bar() 
+```
+
+```{r}
+data %>% group_by(Shoe.Size) %>% summarize(price = mean(Sale.Price))
+
 ```
 
