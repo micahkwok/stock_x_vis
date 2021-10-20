@@ -3,7 +3,7 @@ library(readxl)
 
 # This script is used to clean the data into a csv file for our app file to reference. 
 
-data <- read_excel('data/StockX-Data-Contest-2019-3.xlsx', sheet = 2)
+data <- read_excel('data/raw/StockX-Data-Contest-2019-3.xlsx', sheet = 2)
 
 # Renaming columns
 names(data) <- make.names(names(data), unique = TRUE)
@@ -28,4 +28,4 @@ data$Sneaker.Specific.Type <- ifelse(grepl("Yeezy-Boost-350", data$Sneaker.Name)
                                                                                              ifelse(grepl("Zoom-Fly", data$Sneaker.Name),"Zoom Fly","no"))))))))))
 data$Order.Year.Month <- format(as.Date(data$Order.Date), "%Y-%m")
 
-write.csv(data, "data/cleaned_stockX_data.csv", row.names = FALSE)
+write.csv(data, "data/processed/cleaned_stockX_data.csv", row.names = FALSE)

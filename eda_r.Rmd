@@ -42,13 +42,21 @@ data
 write.csv(data, "data/cleaned_stockX_data.csv", row.names = FALSE)
 
 ```
+```{r}
+data <- read_csv("data/processed/cleaned_stockX_data.csv")
+
+data
+```
 
 ```{r}
-ggplot(data, aes(y = Sale.Price, x = Order.Year.Month, color = Sneaker.Specific.Type, group = Sneaker.Specific.Type)) + 
+fake_list = c('Yeezy', 'Zoom Fly')
+
+p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% fake_list), aes(y = Sale.Price, x = Order.Year.Month, color = Sneaker.Specific.Type, group = Sneaker.Specific.Type)) + 
   geom_line(stat = 'summary', fun = mean) + 
-  ggtitle("Sale Price vs Time") +
-  xlab("Time") + ylab("Sale Price") +
+  labs(x = "Time", y = "Sale Price", title = "Sale Price vs Time") + 
   theme(axis.text.x = element_text(angle = 90))
+
+p
 ```
 
 ```{r}
