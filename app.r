@@ -27,23 +27,18 @@ sidebar <- htmlDiv(list(
         htmlBr(),       
         
         #Age Filter - to change to time
-        htmlH4(htmlLabel('Age')),
-        dccRangeSlider(
-          id='age-range-slider',
-          min=15,
-          max=75,
-          step=2,
-          marks=list(
-            "15" = "15",
-            "25" = "25",
-            "35" = "35",
-            "45" = "45",
-            "55" = "55",
-            "65" = "65",
-            "75" = "75"
-          ),
-          value=list(15, 75)),
-          htmlBr(),
+        htmlH4(htmlLabel('Date Range')),
+        dccDatePickerRange(
+            id='my-date-picker-single',
+            display_format = "MMM Y",
+            start_date_placeholder_text = "MMM Y",
+            start_date = format(as.Date("2017-9-1"), format  =  "%Y,%m,%d"),
+            min_date_allowed = format(as.Date("2017-9-1"), format  =  "%Y,%m,%d"),
+            max_date_allowed = format(as.Date("2019-2-28"), format  =  "%Y,%m,%d"),
+            end_date = format(as.Date("2019-2-28"), format  =  "%Y,%m,%d")
+        ),
+        htmlBr(),
+        htmlBr(),
         
           # Sneaker Model Checklist - to change to sneaker type
           htmlH4(htmlLabel('Sneaker Model')),
@@ -65,16 +60,39 @@ sidebar <- htmlDiv(list(
           ),
           htmlBr(),
         
-          # Self-Employed Filter Checklist
-          htmlH4(htmlLabel('Self-Employed')),
+          # Sneaker Size Filter Checklist
+          htmlH4(htmlLabel('Sneaker Size')),
           dccChecklist(
-              id = 'self_emp_checklist',
+              id = 'sneaker_size',
               options = list(
-                  list('label' = ' Yes', 'value' = 'Yes'),
-                  list('label' = ' No', 'value' = 'No')),
-              value = list('Yes', 'No'),            
-              labelStyle = list('display'='block')
-              
+                  list('label' = '3.5', 'value' = '3.5'),
+                  list('label' = '4.0', 'value' = '4.0'),
+                  list('label' = '4.5', 'value' = '4.5'),
+                  list('label' = '5.0', 'value' = '5.0'),
+                  list('label' = '5.5', 'value' = '5.5'),
+                  list('label' = '6.0', 'value' = '6.0'),
+                  list('label' = '6.5', 'value' = '6.5'),
+                  list('label' = '7.0', 'value' = '7.0'),
+                  list('label' = '7.5', 'value' = '7.5'),
+                  list('label' = '8.0', 'value' = '8.0'),
+                  list('label' = '8.5', 'value' = '8.5'),
+                  list('label' = '9.0', 'value' = '9.0'),
+                  list('label' = '9.5', 'value' = '9.5'),
+                  list('label' = '10.0', 'value' = '10.0'),
+                  list('label' = '10.5', 'value' = '10.5'),
+                  list('label' = '11.0', 'value' = '11.0'),
+                  list('label' = '11.5', 'value' = '11.5'),
+                  list('label' = '12.0', 'value' = '12.0'),
+                  list('label' = '12.5', 'value' = '12.5'),
+                  list('label' = '13.0', 'value' = '13.0'),
+                  list('label' = '13.5', 'value' = '13.5'),
+                  list('label' = '14.0', 'value' = '14.0'),
+                  list('label' = '14.5', 'value' = '14.5'),
+                  list('label' = '15.0', 'value' = '15.0'),
+                  list('label' = '16.0', 'value' = '16.0'),
+                  list('label' = '17.0', 'value' = '17.0')),         
+              value = list('3.5', '4.0', '4.5', '5.0', '5.5', '6.0', '6.5', '7.0', '7.5', '8.0', '8.5', '9.0', '9.5', '10.0', '10.5', '11.0', '11.5', '12.0', '12.5', '13.0','13.5', '14.0', '14.5', '15.0', '16.0', '17.0'),            
+              labelStyle = list('display'='inline-block')
           ),          
           
          
@@ -89,8 +107,15 @@ CONTENT_STYLE <- list(
     'padding'="2rem 1rem"    
 )
 
+TITLE_BAR_STYLE <- list(
+    backgroundColor = 'forestgreen', 
+    color = 'white', 
+    borderRadius = '3', 
+    textAlign = 'center'
+ )
+
 content <- htmlDiv(list(
-  htmlH2('StockX'),
+  htmlH2('StockX', style = TITLE_BAR_STYLE),
   htmlBr(),
   # Chart 1 figure
   dccGraph(id='price_time_chart'),
@@ -100,6 +125,10 @@ content <- htmlDiv(list(
 ),
   style=CONTENT_STYLE
 )
+
+# first_row <- htmlDiv(list(
+#     dbcRow(dbcCol(htmlDiv('Title')
+# )))
 
 #Main Layout
 app$layout(
@@ -117,9 +146,11 @@ app$layout(
 # Price Time Chart
 app$callback(
   output('price_time_chart', 'figure'),
-  list(input('sneaker_model', 'value')),
-  function(sneaker_model_chosen) {
-      p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% sneaker_model_chosen), 
+  list(input('sneaker_model', 'value'), 
+       input('sneaker_size', 'value')),
+  function(sneaker_model_chosen, sneaker_size_chosen) {
+      p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% sneaker_model_chosen &
+                                  Shoe.Size %in% sneaker_size_chosen), 
       aes(y = Sale.Price, x = Order.Year.Month, color = Sneaker.Specific.Type, group = Sneaker.Specific.Type)) + 
       geom_line(stat = 'summary', fun = mean) + 
       labs(x = "Time", y = "Sale Price", title = "Sale Price vs Time") + 
@@ -131,9 +162,11 @@ app$callback(
 
 app$callback(
   output('violin_plot', 'figure'),
-  list(input('sneaker_model', 'value')),
-  function(sneaker_model_chosen) {
-      p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% sneaker_model_chosen), 
+  list(input('sneaker_model', 'value'), 
+       input('sneaker_size', 'value')),
+  function(sneaker_model_chosen, sneaker_size_chosen) {
+      p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% sneaker_model_chosen &
+                                  Shoe.Size %in% sneaker_size_chosen), 
       aes(x = Sneaker.Specific.Type, y = Sale.Price)) + geom_violin() + geom_point(stat = 'summary', fun = 'mean', color = 'red', alpha = 0.3) + labs(title = "Sale Price")
       
     ggplotly(p)

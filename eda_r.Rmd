@@ -39,7 +39,7 @@ data$Order.Year.Month <- format(as.Date(data$Order.Date), "%Y-%m")
 
 data
 
-write.csv(data, "data/cleaned_stockX_data.csv", row.names = FALSE)
+# write.csv(data, "data/cleaned_stockX_data.csv", row.names = FALSE)
 
 ```
 ```{r}
@@ -60,7 +60,10 @@ p
 ```
 
 ```{r}
-ggplot(data, aes(x = Sale.Price, y = Sneaker.Specific.Type)) + 
+sneaker_size = c('14.0')
+
+ggplot(data %>% filter(Sneaker.Specific.Type %in% fake_list &
+                         Shoe.Size %in% sneaker_size), aes(x = Sale.Price, y = Sneaker.Specific.Type)) + 
   geom_violin() + 
   geom_point(stat = 'summary', fun = 'mean', color = 'red', alpha = 0.3) +
   ggtitle("Sale Price")

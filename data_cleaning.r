@@ -11,6 +11,7 @@ names(data) <- make.names(names(data), unique = TRUE)
 # categoricals
 data$Sneaker.Name <- as.factor(data$Sneaker.Name)
 data$Buyer.Region <- as.factor(data$Buyer.Region)
+data$Shoe.Size <- as.character(data$Shoe.Size)
 
 # new column
 data$Sneaker.General.Type <- ifelse(grepl("Yeezy-Boost-350", data$Sneaker.Name), "Adidas Yeezy", 
