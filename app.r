@@ -29,7 +29,7 @@ sidebar <- htmlDiv(list(
         #Age Filter - to change to time
         htmlH4(htmlLabel('Date Range')),
         dccDatePickerRange(
-            id='my-date-picker-single',
+            id='date_picker',
             display_format = "MMM Y",
             start_date_placeholder_text = "MMM Y",
             start_date = format(as.Date("2017-9-1"), format  =  "%Y,%m,%d"),
@@ -147,15 +147,19 @@ app$layout(
 app$callback(
   output('price_time_chart', 'figure'),
   list(input('sneaker_model', 'value'), 
-       input('sneaker_size', 'value')),
-  function(sneaker_model_chosen, sneaker_size_chosen) {
+       input('sneaker_size', 'value'),
+       input('date_picker', property = 'start_date'),
+       input('date_picker', property = 'end_date')),
+  function(sneaker_model_chosen, sneaker_size_chosen, start_date_chosen, end_date_chosen) {
       p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% sneaker_model_chosen &
-                                  Shoe.Size %in% sneaker_size_chosen), 
+                                  Shoe.Size %in% sneaker_size_chosen &
+                                  Order.Year.Month >= as.Date(gsub(",","-",start_date_chosen)) &
+                                  Order.Year.Month <= as.Date(gsub(",","-",end_date_chosen))), 
       aes(y = Sale.Price, x = Order.Year.Month, color = Sneaker.Specific.Type, group = Sneaker.Specific.Type)) + 
       geom_line(stat = 'summary', fun = mean) + 
       labs(x = "Time", y = "Sale Price", title = "Sale Price vs Time") + 
       theme(axis.text.x = element_text(angle = 90))
-      
+
     ggplotly(p)
   }
 )
@@ -163,11 +167,17 @@ app$callback(
 app$callback(
   output('violin_plot', 'figure'),
   list(input('sneaker_model', 'value'), 
-       input('sneaker_size', 'value')),
-  function(sneaker_model_chosen, sneaker_size_chosen) {
+       input('sneaker_size', 'value'),
+       input('date_picker', property = 'start_date'),
+       input('date_picker', property = 'end_date')),
+  function(sneaker_model_chosen, sneaker_size_chosen, start_date_chosen, end_date_chosen) {
       p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% sneaker_model_chosen &
-                                  Shoe.Size %in% sneaker_size_chosen), 
-      aes(x = Sneaker.Specific.Type, y = Sale.Price)) + geom_violin() + geom_point(stat = 'summary', fun = 'mean', color = 'red', alpha = 0.3) + labs(title = "Sale Price")
+                                  Shoe.Size %in% sneaker_size_chosen &
+                                  Order.Year.Month >= as.Date(gsub(",","-",start_date_chosen)) &
+                                  Order.Year.Month <= as.Date(gsub(",","-",end_date_chosen))), 
+      aes(x = Sneaker.Specific.Type, y = Sale.Price)) + 
+      geom_violin() + 
+      geom_point(stat = 'summary', fun = 'mean', color = 'red', alpha = 0.3) + labs(title = "Sale Price")
       
     ggplotly(p)
   }

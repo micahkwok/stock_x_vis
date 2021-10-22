@@ -12,7 +12,7 @@ library(lme4)
 
 
 ```{r}
-data <- read_excel('data/StockX-Data-Contest-2019-3.xlsx', sheet = 2)
+data <- read_excel('data/raw/StockX-Data-Contest-2019-3.xlsx', sheet = 2)
 
 # Renaming columns
 names(data) <- make.names(names(data), unique = TRUE)
@@ -35,7 +35,9 @@ data$Sneaker.Specific.Type <- ifelse(grepl("Yeezy-Boost-350", data$Sneaker.Name)
                                                                                ifelse(grepl("Air-Max-97", data$Sneaker.Name),"Air Max 97",
                                                                                       ifelse(grepl("Hyperdunk", data$Sneaker.Name),"Hyperdunk 2017",
                                                                                              ifelse(grepl("Zoom-Fly", data$Sneaker.Name),"Zoom Fly","no"))))))))))
-data$Order.Year.Month <- format(as.Date(data$Order.Date), "%Y-%m")
+
+data$Order.Year.Month <- as.Date(data$Order.Date)
+# data$Order.Year.Month <- format(as.Date(data$Order.Year.Month), '%Y-%m')
 
 data
 
@@ -50,13 +52,19 @@ data
 
 ```{r}
 fake_list = c('Yeezy', 'Zoom Fly')
+fake_date <- "2017,09,01"
+fake_end_date <- as.Date('2018-12-03')
 
-p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% fake_list), aes(y = Sale.Price, x = Order.Year.Month, color = Sneaker.Specific.Type, group = Sneaker.Specific.Type)) + 
-  geom_line(stat = 'summary', fun = mean) + 
-  labs(x = "Time", y = "Sale Price", title = "Sale Price vs Time") + 
+p <- ggplot(data %>% filter(Sneaker.Specific.Type %in% fake_list &
+                              Order.Year.Month >= as.Date(gsub(",","-",fake_date)) &
+                              Order.Year.Month <= fake_end_date), aes(y = Sale.Price, x = Order.Year.Month, color = Sneaker.Specific.Type, group = Sneaker.Specific.Type)) +
+  geom_line(stat = 'summary', fun = mean) +
+  labs(x = "Time", y = "Sale Price", title = "Sale Price vs Time") +
   theme(axis.text.x = element_text(angle = 90))
 
 p
+
+format(as.Date(gsub(",","-",fake_date)), format = '%B,%d,%Y')
 ```
 
 ```{r}

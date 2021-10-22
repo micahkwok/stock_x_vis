@@ -27,6 +27,7 @@ data$Sneaker.Specific.Type <- ifelse(grepl("Yeezy-Boost-350", data$Sneaker.Name)
                                                                                ifelse(grepl("Air-Max-97", data$Sneaker.Name),"Air Max 97",
                                                                                       ifelse(grepl("Hyperdunk", data$Sneaker.Name),"Hyperdunk 2017",
                                                                                              ifelse(grepl("Zoom-Fly", data$Sneaker.Name),"Zoom Fly","no"))))))))))
-data$Order.Year.Month <- format(as.Date(data$Order.Date), "%Y-%m")
+# data$Order.Year.Month <- format(as.Date(data$Order.Date), '%Y-%m')
+data$Order.Year.Month <- as.Date(data$Order.Date)
 
 write.csv(data, "data/processed/cleaned_stockX_data.csv", row.names = FALSE)
