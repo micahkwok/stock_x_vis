@@ -117,18 +117,23 @@ TITLE_BAR_STYLE <- list(
 content <- htmlDiv(list(
   htmlH2('StockX', style = TITLE_BAR_STYLE),
   htmlBr(),
-  # Chart 1 figure
-  dccGraph(id='price_time_chart'),
-  htmlBr(),
-  # Chart 2 figure
-  dccGraph(id='violin_plot')  
+
+  dbcTabs(id="tabs", children = list(
+    dbcTab(label = 'First Tab', label_style = list(color = "forestgreen"), children = list(  
+        # Chart 1 figure
+        dccGraph(id='price_time_chart'),
+        htmlBr(),
+        # Chart 2 figure
+        dccGraph(id='violin_plot')  
+    )),
+    dbcTab(label = 'Second Tab', label_style = list(color = "forestgreen"), children = list(
+        htmlH3("HI")
+    
+    ))
+  ))
 ),
   style=CONTENT_STYLE
 )
-
-# first_row <- htmlDiv(list(
-#     dbcRow(dbcCol(htmlDiv('Title')
-# )))
 
 #Main Layout
 app$layout(
