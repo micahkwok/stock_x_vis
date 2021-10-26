@@ -39,6 +39,10 @@ data$Sneaker.Specific.Type <- ifelse(grepl("Yeezy-Boost-350", data$Sneaker.Name)
 data$Order.Year.Month <- as.Date(data$Order.Date)
 # data$Order.Year.Month <- format(as.Date(data$Order.Year.Month), '%Y-%m')
 
+data$Resell.Date <- difftime(data$Order.Date, data$Release.Date, units = 'days')
+data$Profit <- data$Sale.Price - data$Retail.Price
+data$Profit.Margin <- data$Profit / data$Retail.Price * 100
+data$Resell.Week <- ceiling(data$Resell.Date / 7) 
 data
 
 # write.csv(data, "data/cleaned_stockX_data.csv", row.names = FALSE)
@@ -48,6 +52,14 @@ data
 data <- read_csv("data/processed/cleaned_stockX_data.csv")
 
 data
+```
+```{r}
+data2 <- data %>% group_by(Sneaker.Specific.Type, Resell.Week) %>% summarize(Profit.Margin.Mean = mean(Profit.Margin))
+
+data2
+
+ggplot(data2 %>% filter(Resell.Week <= 75), aes(x = Resell.Week, y = Sneaker.Specific.Type)) +
+  geom_tile(aes(fill = Profit.Margin.Mean))
 ```
 
 ```{r}

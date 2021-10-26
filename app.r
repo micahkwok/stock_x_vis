@@ -13,6 +13,8 @@ app$title("StockX Dashboard")
 
 data <- read_csv("data/processed/cleaned_stockX_data.csv")
 
+data2 <- data %>% group_by(Sneaker.Specific.Type, Resell.Week) %>% summarize(Profit.Margin.Mean = mean(Profit.Margin))
+
 SIDEBAR_STYLE <- list(
     'position'="fixed",
     'top'=0,
@@ -127,8 +129,7 @@ content <- htmlDiv(list(
         dccGraph(id='violin_plot')  
     )),
     dbcTab(label = 'Second Tab', label_style = list(color = "forestgreen"), children = list(
-        htmlH3("HI")
-    
+        dccGraph(id='resell_chart')
     ))
   ))
 ),
@@ -139,7 +140,7 @@ content <- htmlDiv(list(
 app$layout(
     
     htmlDiv(
-    
+
       list(
       #side bar div
       sidebar,
@@ -169,6 +170,7 @@ app$callback(
   }
 )
 
+# Violin Chart
 app$callback(
   output('violin_plot', 'figure'),
   list(input('sneaker_model', 'value'), 
@@ -183,6 +185,27 @@ app$callback(
       aes(x = Sneaker.Specific.Type, y = Sale.Price)) + 
       geom_violin() + 
       geom_point(stat = 'summary', fun = 'mean', color = 'red', alpha = 0.3) + labs(title = "Sale Price")
+      
+    ggplotly(p)
+  }
+)
+
+# Resell Margin Chart
+
+app$callback(
+  output('resell_chart', 'figure'),
+  list(input('sneaker_model', 'value'), 
+       input('sneaker_size', 'value'),
+       input('date_picker', property = 'start_date'),
+       input('date_picker', property = 'end_date')),
+  function(sneaker_model_chosen, sneaker_size_chosen, start_date_chosen, end_date_chosen) {
+      p <- ggplot(data2 %>% filter(Sneaker.Specific.Type %in% sneaker_model_chosen &
+                                  Shoe.Size %in% sneaker_size_chosen &
+                                  Order.Year.Month >= as.Date(gsub(",","-",start_date_chosen)) &
+                                  Order.Year.Month <= as.Date(gsub(",","-",end_date_chosen)) &
+                                  Resell.Week <= 75), 
+      aes(x = Resell.Week, y = Sneaker.Specific.Type)) + 
+      geom_tile(aes(fill = Profit.Margin.Mean))
       
     ggplotly(p)
   }
