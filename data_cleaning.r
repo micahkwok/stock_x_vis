@@ -30,4 +30,10 @@ data$Sneaker.Specific.Type <- ifelse(grepl("Yeezy-Boost-350", data$Sneaker.Name)
 # data$Order.Year.Month <- format(as.Date(data$Order.Date), '%Y-%m')
 data$Order.Year.Month <- as.Date(data$Order.Date)
 
+# Resell data columns
+data$Resell.Date <- difftime(data$Order.Date, data$Release.Date, units = 'days')
+data$Profit <- data$Sale.Price - data$Retail.Price
+data$Profit.Margin <- data$Profit / data$Retail.Price * 100
+data$Resell.Week <- ceiling(data$Resell.Date / 7) 
+
 write.csv(data, "data/processed/cleaned_stockX_data.csv", row.names = FALSE)
